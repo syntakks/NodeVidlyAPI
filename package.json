@@ -1,0 +1,29 @@
+{
+  "name": "nodevidlyapi",
+  "version": "1.0.0",
+  "description": "Movie Rental API Tutorial",
+  "main": "app.js",
+  "scripts": {
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syntakks/NodeVidlyAPI.git"
+  },
+  "keywords": [
+    "Node",
+    "Express",
+    "js",
+    "MongoDB",
+    "Node.js"
+  ],
+  "author": "Stephen Wall",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/syntakks/NodeVidlyAPI/issues"
+  },
+  "homepage": "https://github.com/syntakks/NodeVidlyAPI#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
