@@ -14,6 +14,11 @@ const genres = require('./routes/genres')
 const express = require('express')
 const app = express()
 
+// Mongoose
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
+const ObjectId = Schema.ObjectId
+
 // Templating 
 app.set('view engine', 'pug')
 app.set('views', './views') // Default location for template view files. 
@@ -41,8 +46,11 @@ if (app.get('env') === 'development') {
 }
 app.use(morgan('tiny'))
 
-// DB Work example: 
-dbDebugger('Connected to the database...')
+// Database
+mongoose.connect('mongodb://localhost/playground', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 
 
 const port = process.env.PORT || 3000

@@ -1,24 +1,28 @@
+const dbDebugger = require('debug')('app:db')
 const Joi = require('@hapi/joi')
 const express = require('express')
 const router = express.Router()
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
+const ObjectId = Schema.ObjectId 
 
-// Dummy Data
-const genres = [
-    { id: 1, name: 'horror' },
-    { id: 2, name: 'action' },
-    { id: 3, name: 'romance' },
-    { id: 4, name: 'comedy' },
-    { id: 5, name: 'thriller' },
-    { id: 6, name: 'suspence' },
-    { id: 7, name: 'documentary' },
-    { id: 8, name: 'drama' },
-    { id: 9, name: 'musical' },
-    { id: 10, name: 'sci-fi' }
-]
+// MongoDB Schema
+const genreSchema = new Schema({
+    id: ObjectId,
+    name: String
+})
+// Course Class
+const Genre = mongoose.model('Genre', genreSchema)
 
 // Get all Genres
 router.get('/', (req, res) => {
-    res.send(genres)
+    getAllGenres()
+        .then(document => {
+            res.send(document)
+        })
+        .catch(err => {
+            res.status(503).send(err.message)
+        })
 })
 
 // Get Genre By ID
@@ -36,14 +40,20 @@ router.post('/', (req, res) => {
     const { error, value } = validateGenre(req.body)
     // 400 Bad Request
     if (error) return res.status(400).send(error.message)
-    
-    const genre = {
-        id: genres.length + 1,
-        name: req.body.name
-    }
-    genres.push(genre)
-    res.send(genre)
+
+    createGenre(req)
+        .then(document => {
+            dbDebugger('Creating Genre in Database...')
+            dbDebugger(document)
+            res.send(document)
+        })
+        .catch(err => {
+            dbDebugger(err.message)
+            res.status(503).send('Database error...Sorry...')
+        }) 
 })
+
+
 
 // Update 
 router.put('/:id', (req, res) => {
@@ -83,8 +93,23 @@ function validateGenre(genre) {
         id: Joi.number(),
         name: Joi.string().min(3).required()
     });
-
     return schema.validate(genre);
 }
+
+async function getAllGenres() {
+    const genres = await Genre.find()
+    dbDebugger(genres)
+    return genres
+}
+
+async function createGenre(req) {
+    const genre = new Genre({
+        name: req.body.name
+    })
+    const result = await genre.save()
+    return result
+}
+
+
 
 module.exports = router
