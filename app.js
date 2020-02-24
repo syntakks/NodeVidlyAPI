@@ -1,5 +1,6 @@
 // Define the port with environment variables
 // export PORT=<your port number>
+// Must export development settings and app_password to run this application
 const config = require('config')
 const helmet = require('helmet')
 // Different debuggers, export DEBUG=<namespace> comma separated, * for all, empty for none.
@@ -9,6 +10,7 @@ const morgan = require('morgan')
 // Routes
 const home = require('./routes/home')
 const genres = require('./routes/genres')
+const courses = require('./routes/courses')
 
 // Express
 const express = require('express')
@@ -32,6 +34,7 @@ app.use(helmet())
 // Use routes 
 app.use('/', home)
 app.use('/api/genres/', genres)
+app.use('/api/courses/', courses)
 
 // Configuration 
 console.log(`Application Name: ${config.get('name')}`)
@@ -49,9 +52,12 @@ app.use(morgan('tiny'))
 // Database
 mongoose.connect('mongodb://localhost/playground', {
   useNewUrlParser: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
   useUnifiedTopology: true
-});
-
+})
+  .then(() => dbDebugger("Connected to MongoDB..."))
+  .catch(() => dbDebugger("Could not connect to MongoDB..."));
 
 const port = process.env.PORT || 3000
 app.listen(port, () => {
