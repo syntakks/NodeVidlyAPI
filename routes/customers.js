@@ -1,16 +1,17 @@
 const dbDebugger = require('debug')('app:db')
-const { Genre, validate } = require('../models/genre')
+const { Customer, validate } = require('../models/customer')
 const express = require('express')
 const router = express.Router()
 
 // Web Methods======================================================================
 
-// GET All Genres
+// GET All Customers
 router.get('/', async (req, res) => {
-    dbDebugger('GET All Genres:')
-    const genres = await Genre.find().sort('name')
-    .then(genres => {
-        res.send(genres)
+    dbDebugger('GET All Customers')
+    const customers = await Customer.find().sort('name')
+    .then(customers => {
+        dbDebugger(customers)
+        res.send(customers)
     })
     .catch(err => {
         dbDebugger('--ERROR: (503) Database Error...' + err.message)
@@ -20,15 +21,16 @@ router.get('/', async (req, res) => {
 
 // GET Pagination
 router.get('/:pageNumber/:pageSize', async (req, res) => {
-    dbDebugger('GET Paginated Genres:')
+    dbDebugger('GET Paginated Customers:')
     const pageNumber = parseInt(req.params.pageNumber)
     const pageSize = parseInt(req.params.pageSize)
-    const genres = await Genre
+    const customers = await Customer
     .find()
     .skip((pageNumber - 1) * pageSize)
     .limit(pageSize)
-    .then(genres => {
-        return res.send(genres)
+    .then(customers => {
+        dbDebugger(customers)
+        return res.send(customers)
     })
     .catch(err => {
         dbDebugger('--ERROR: (503) Database Error...' + err.message)
@@ -37,17 +39,17 @@ router.get('/:pageNumber/:pageSize', async (req, res) => {
     
 })
 
-// GET Genre By ID
+// GET Customer By ID
 router.get('/:id', async (req, res) => {
-    dbDebugger('GET Genre by ID:')
-    const genre = await Genre.findById(req.params.id)
-        .then(genre => {
-            if (!genre){
-                dbDebugger('ERROR: (404) The genre with the given ID was not found...')
-                return res.status(404).send('The genre with Given ID was not found.')
+    dbDebugger('GET Customer by ID:')
+    const customer = await Customer.findById(req.params.id)
+        .then(customer => {
+            if (!customer){
+                dbDebugger('ERROR: (404) The customer with the given ID was not found...')
+                return res.status(404).send('The customer with Given ID was not found.')
             } 
-            dbDebugger(genre)
-            return res.send(genre)
+            dbDebugger(customer)
+            return res.send(customer)
         })
         .catch(err => {
             dbDebugger('--ERROR: (400) Bad Request...' + err.message)
@@ -55,19 +57,25 @@ router.get('/:id', async (req, res) => {
         })
 })
 
-// POST Create Genre
+// POST Create Customer
 router.post('/', async (req, res) => {
-    dbDebugger('POST Creating Genre in Database...')
+    dbDebugger('POST Creating Customer in Database...')
     const { error, value } = validate(req.body)
     if (error) {
         dbDebugger('--ERROR: (400) Bad Request...' + error.message)
         return res.status(400).send(error.message)
     } 
-    let genre = new Genre({ name: req.body.name })
-    genre = await genre.save()
-        .then(genre => {
-            dbDebugger(genre)
-            return res.send(genre)
+    let customer = new Customer(
+            { 
+                name: req.body.name,
+                phone: req.body.phone,
+                isGold: req.body.isGold
+            }
+        )
+    customer = await customer.save()
+        .then(customer => {
+            dbDebugger(customer)
+            return res.send(customer)
         })
         .catch(err => {
             dbDebugger('--ERROR: (503) Database Error...' + err.message)
@@ -75,26 +83,31 @@ router.post('/', async (req, res) => {
         })
 })
 
-// PUT Update Genre
+// PUT Update Customer
 router.put('/:id', async (req, res) => {
-    dbDebugger('PUT Updating Genre...')
+    dbDebugger('PUT Updating Customer...')
     const { error, value } = validate(req.body)
     if (error) {
         dbDebugger('--ERROR: (400) Bad Request...' + error.message)
         return res.status(400).send(error.message)
     } 
-    const genre = await Genre.findByIdAndUpdate(
+    const customer = await Customer.findByIdAndUpdate(
         req.params.id,
-        { name: req.body.name, $inc: { __v: 1 } }, 
+        { 
+            name: req.body.name,
+            phone: req.body.phone,
+            isGold: req.body.isGold,
+            $inc: { __v: 1 } 
+        }, 
         { new: true }
     )
-    .then(genre => {
-        if (!genre){
-            dbDebugger('--ERROR: (404) The genre with the given ID was not found...')
-            return res.status(404).send('The genre with Given ID was not found.')
+    .then(customer => {
+        if (!customer){
+            dbDebugger('--ERROR: (404) The customer with the given ID was not found...')
+            return res.status(404).send('The customer with Given ID was not found.')
         } 
-        dbDebugger(genre)
-        return res.send(genre)
+        dbDebugger(customer)
+        return res.send(customer)
     }) 
     .catch(err => {
         dbDebugger('--ERROR: (400) Bad Request...' + err.message)
@@ -104,15 +117,15 @@ router.put('/:id', async (req, res) => {
 
 // DELETE Remove Genre
 router.delete('/:id', async (req, res) => {
-    dbDebugger('DELETE Deleting Genre')
-    const genre = await Genre.findByIdAndRemove(req.params.id)
-        .then(genre => {
-            if (!genre){
-                dbDebugger('--ERROR: (404) The genre with the given ID was not found...')
-                return res.status(404).send('The genre with Given ID was not found.')
+    dbDebugger('DELETE Deleting Customer')
+    const customer = await Customer.findByIdAndRemove(req.params.id)
+        .then(customer => {
+            if (!customer){
+                dbDebugger('--ERROR: (404) The customer with the given ID was not found...')
+                return res.status(404).send('The customer with Given ID was not found.')
             }
-            dbDebugger(genre)
-            return res.send(genre)
+            dbDebugger(customer)
+            return res.send(customer)
         })
         .catch(err => {
             dbDebugger('--ERROR: (400) Bad Request...' + err.message)

@@ -10,6 +10,8 @@ const morgan = require('morgan')
 // Routes
 const home = require('./routes/home')
 const genres = require('./routes/genres')
+const customers = require('./routes/customers')
+const movies = require('./routes/movies')
 const courses = require('./routes/courses')
 
 // Express
@@ -29,11 +31,15 @@ app.set('views', './views') // Default location for template view files.
 app.use(express.json())
 app.use(express.urlencoded({ extended: true })) // converts urlencoded to json in req.body
 app.use(express.static('public')) // Static assets in this folder, localhost:port/<filename>
+
 // HTTP Header Security
 app.use(helmet()) 
+
 // Use routes 
 app.use('/', home)
 app.use('/api/genres/', genres)
+app.use('/api/customers/', customers)
+app.use('/api/movies/', movies)
 app.use('/api/courses/', courses)
 
 // Configuration 
