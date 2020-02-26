@@ -111,11 +111,12 @@ router.post('/', async (req, res) => {
     }))
     .then(() => {
         movie.numberInStock--
+        dbDebugger('Updating movie stock...')
         return movie.save()
     })
-    .then((movie) => {
-        dbDebugger(movie)
-        return res.send(movie)
+    .then(() => {
+        dbDebugger(rental)
+        return res.send(rental)
     })
     .catch(err => {
         dbDebugger('--ERROR: (503) Database Error...' + err.message)
