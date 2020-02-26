@@ -42,3 +42,4 @@ function validateCustomer(customer) {
 
 module.exports.Customer = Customer
 module.exports.validate = validateCustomer
+module.exports.customerSchema = customerSchema
