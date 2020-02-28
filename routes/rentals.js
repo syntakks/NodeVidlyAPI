@@ -2,6 +2,7 @@ const dbDebugger = require('debug')('app:db')
 const { Rental, validate } = require('../models/rental')
 const { Customer } = require('../models/customer')
 const { Movie } = require('../models/movie')
+const mongoose = require('mongoose')
 const express = require('express')
 const router = express.Router()
 
@@ -63,6 +64,16 @@ router.get('/:id', async (req, res) => {
 // POST Create Rental
 router.post('/', async (req, res) => {
     dbDebugger('POST Creating Rental in Database...')
+    // This is not the best way to do this but 
+    //I don't like adding too many packages...
+    if (!mongoose.Types.ObjectId.isValid(req.body.customerId)) {
+        dbDebugger('--ERROR: (400) Bad Request...Invalid Customer ID')
+        return res.status(400).send('Invalid Customer')
+    }
+    if (!mongoose.Types.ObjectId.isValid(req.body.movieId)) {
+        dbDebugger('--ERROR: (400) Bad Request...Invalid Movie ID')
+        return res.status(400).send('Invalid Movie')
+    }
     const { error, value } = validate(req.body)
     if (error) {
         dbDebugger('--ERROR: (400) Bad Request...' + error.message)
@@ -70,6 +81,7 @@ router.post('/', async (req, res) => {
     } 
 
     const customer = await Customer.findById(req.body.customerId)
+    .catch()
     if (!customer) {
         dbDebugger('--ERROR: Invalid Customer')
         return res.status(400).send('Invalid Customer...')
