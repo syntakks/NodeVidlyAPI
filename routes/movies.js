@@ -1,3 +1,4 @@
+const auth = require('../middleware/authorize')
 const dbDebugger = require('debug')('app:db')
 const { Movie, validate } = require('../models/movie')
 const { Genre } = require('../models/genre')
@@ -59,7 +60,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // POST Create Movie
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
     dbDebugger('POST Creating Movie in Database...')
     const { error, value } = validate(req.body)
     if (error) {
@@ -96,7 +97,7 @@ router.post('/', async (req, res) => {
 })
 
 // PUT Update Movie
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     dbDebugger('PUT Updating Movie...')
     const { error, value } = validate(req.body)
     if (error) {
@@ -138,7 +139,7 @@ router.put('/:id', async (req, res) => {
 })
 
 // DELETE Remove Movie
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     dbDebugger('DELETE Deleting Movie')
     const movie = await Movie.findByIdAndRemove(req.params.id)
         .then(movie => {

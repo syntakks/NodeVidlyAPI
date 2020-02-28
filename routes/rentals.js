@@ -1,3 +1,4 @@
+const auth = require('../middleware/authorize')
 const dbDebugger = require('debug')('app:db')
 const { Rental, validate } = require('../models/rental')
 const { Customer } = require('../models/customer')
@@ -62,7 +63,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // POST Create Rental
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
     dbDebugger('POST Creating Rental in Database...')
     // This is not the best way to do this but 
     //I don't like adding too many packages...
@@ -138,7 +139,7 @@ router.post('/', async (req, res) => {
 
 
 // PUT Update Rental
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     dbDebugger('PUT Updating Rental...')
     const { error, value } = validate(req.body)
     if (error) {
@@ -174,7 +175,7 @@ router.put('/:id', async (req, res) => {
 })
 
 // DELETE Remove Rental
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     dbDebugger('DELETE Deleting Rental')
     const rental = await Rental.findByIdAndRemove(req.params.id)
         .then(rental => {

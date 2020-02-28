@@ -1,3 +1,4 @@
+const auth = require('../middleware/authorize')
 const _ = require('lodash')
 const { hash } = require('../hash')
 const dbDebugger = require('debug')('app:db')
@@ -42,9 +43,9 @@ router.get('/:pageNumber/:pageSize', async (req, res) => {
 })
 
 // GET User By ID
-router.get('/:id', async (req, res) => {
+router.get('/me', auth, async (req, res) => {
     dbDebugger('GET User by ID:')
-    const user = await User.findById(req.params.id)
+    const user = await User.findById(req.user._id).select('-password')
         .then(user => {
             if (!user){
                 dbDebugger('ERROR: (404) The user with the given ID was not found...')
@@ -78,7 +79,10 @@ router.post('/', async (req, res) => {
     user = await user.save()
         .then(user => {
             dbDebugger(user)
-            return res.send(_.pick(user, ['_id', 'name', 'email']))
+            const token = user.generateAuthToken()
+            return res
+                .header('x-auth-token', token)
+                .send(_.pick(user, ['_id', 'name', 'email']))
         })
         .catch(err => {
             dbDebugger('--ERROR: (503) Database Error...' + err.message)
@@ -87,7 +91,7 @@ router.post('/', async (req, res) => {
 })
 
 // PUT Update User
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     dbDebugger('PUT Updating User...')
     const { error, value } = validate(req.body)
     if (error) {
@@ -119,7 +123,7 @@ router.put('/:id', async (req, res) => {
 })
 
 // DELETE Remove User
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     dbDebugger('DELETE Deleting User')
     const user = await User.findByIdAndRemove(req.params.id)
         .then(user => {

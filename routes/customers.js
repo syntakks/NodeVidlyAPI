@@ -1,3 +1,4 @@
+const auth = require('../middleware/authorize')
 const dbDebugger = require('debug')('app:db')
 const { Customer, validate } = require('../models/customer')
 const express = require('express')
@@ -58,7 +59,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // POST Create Customer
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
     dbDebugger('POST Creating Customer in Database...')
     const { error, value } = validate(req.body)
     if (error) {
@@ -84,7 +85,7 @@ router.post('/', async (req, res) => {
 })
 
 // PUT Update Customer
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     dbDebugger('PUT Updating Customer...')
     const { error, value } = validate(req.body)
     if (error) {
@@ -116,7 +117,7 @@ router.put('/:id', async (req, res) => {
 })
 
 // DELETE Remove Genre
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     dbDebugger('DELETE Deleting Customer')
     const customer = await Customer.findByIdAndRemove(req.params.id)
         .then(customer => {

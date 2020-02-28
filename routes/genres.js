@@ -1,3 +1,5 @@
+const auth = require('../middleware/authorize')
+const admin = require('../middleware/admin')
 const dbDebugger = require('debug')('app:db')
 const { Genre, validate } = require('../models/genre')
 const express = require('express')
@@ -56,7 +58,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // POST Create Genre
-router.post('/', async (req, res) => {
+router.post('/', [auth, admin],  async (req, res) => {
     dbDebugger('POST Creating Genre in Database...')
     const { error, value } = validate(req.body)
     if (error) {
@@ -76,7 +78,7 @@ router.post('/', async (req, res) => {
 })
 
 // PUT Update Genre
-router.put('/:id', async (req, res) => {
+router.put('/:id', [auth, admin], async (req, res) => {
     dbDebugger('PUT Updating Genre...')
     const { error, value } = validate(req.body)
     if (error) {
@@ -103,7 +105,7 @@ router.put('/:id', async (req, res) => {
 })
 
 // DELETE Remove Genre
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', [auth, admin], async (req, res) => {
     dbDebugger('DELETE Deleting Genre')
     const genre = await Genre.findByIdAndRemove(req.params.id)
         .then(genre => {

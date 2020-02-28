@@ -1,3 +1,5 @@
+const config = require('config')
+const jwt = require('jsonwebtoken')
 const Joi = require('@hapi/joi')
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
@@ -24,8 +26,15 @@ const userSchema = new Schema({
         required: true,
         minlength: 5,
         maxlength: 1024
-    }
+    }, 
+    isAdmin: Boolean
 })
+
+// This will add a method to the User class. Neat!
+userSchema.methods.generateAuthToken = function() {
+    const token = jwt.sign({ _id: this._id, isAdmin: this.isAdmin }, config.get('jwtPrivateKey'))
+    return token
+}
 
 // Course Class
 const User = mongoose.model('User', userSchema)

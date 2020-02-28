@@ -2,11 +2,12 @@ const _ = require('lodash')
 const Joi = require('@hapi/joi')
 const bcrypt = require('bcrypt')
 const dbDebugger = require('debug')('app:db')
+const authDebugger = require('debug')('app:auth')
 const { User } = require('../models/user')
 const express = require('express')
 const router = express.Router()
 
-// POST Register User
+// POST Login User
 router.post('/', async (req, res) => {
     dbDebugger('POST Register User...')
     const { error, value } = validate(req.body)
@@ -21,10 +22,11 @@ router.post('/', async (req, res) => {
     }
     const validPasswod = await bcrypt.compare(req.body.password, user.password)
     if (!validPasswod) {
-        dbDebugger('--ERROR: (400) Bad Request...No User for this email')
+        authDebugger('--ERROR: (400) Bad Request...Password Incorrect')
         return res.status(400).send('Invalid Email or Password...')
     }
-    res.send(true)
+    const token = user.generateAuthToken()
+    res.send(token)
 })
 
 // Validation=====================================================================

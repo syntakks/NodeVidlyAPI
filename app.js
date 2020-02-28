@@ -52,6 +52,13 @@ app.use('/api/courses/', courses)
 console.log(`Application Name: ${config.get('name')}`)
 console.log(`Mail Server: ${config.get('mail.host')}`)
 console.log(`Mail Password: ${config.get('mail.password')}`)
+// jwtPrivateKey
+// export vidly_jwtPrivateKey=<your key here>
+console.log(`jwtPrivateKey: ${config.get('jwtPrivateKey')}`)
+if (!config.get('jwtPrivateKey')) {
+  console.log('FATAL ERROR: jwtPrivateKey is not defined...')
+  process.exit(1)
+}
 
 // Morgan Logging
 // Can alter NODE_ENV with export to change to production. Development by default. 
